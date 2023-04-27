@@ -7,12 +7,11 @@ app = FastAPI()
 from auth import router as auth_router
 app.include_router(auth_router)
 
+from chat import router as chat_router
+app.include_router(chat_router)
+
 
 @app.get('/')
 async def root():
     return {'message': 'Hello'}
 
-
-@app.post('/create_new_chat')
-async def create_new_chat(chat_name: Annotated[str, Form()]):
-    return {'message': chat_name}

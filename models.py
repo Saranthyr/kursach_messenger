@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR, BOOLEAN, DATE, TIMESTAMP, JSON, ARRAY, BYTEA
+from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR, BOOLEAN, DATE, TIMESTAMP, JSON, ARRAY, BYTEA, UUID
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import text, ForeignKey
@@ -21,7 +21,7 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[str] = mapped_column(VARCHAR(64), primary_key=True)
+    id: Mapped[str] = mapped_column(UUID, primary_key=True)
     username: Mapped[str] = mapped_column(VARCHAR(32), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(VARCHAR(128), nullable=False)
     is_online: Mapped[bool] = mapped_column(BOOLEAN, nullable=False, server_default=text('False'))
@@ -30,12 +30,12 @@ class User(Base):
 class Chat(Base):
     __tablename__ = "chats"
 
-    id: Mapped[str] = mapped_column(VARCHAR(64), primary_key=True)
+    id: Mapped[str] = mapped_column(UUID, primary_key=True)
     name: Mapped[str] = mapped_column(VARCHAR(128), nullable=False)
     type_id: Mapped[int] = mapped_column(ForeignKey("chat_types.id", onupdate="CASCADE", ondelete="RESTRICT"))
 
 
-class ChatTypes(Base):
+class ChatType(Base):
     __tablename__ = "chat_types"
 
     id: Mapped[int] = mapped_column(INTEGER, primary_key=True)
@@ -52,7 +52,7 @@ class Permission(Base):
 class File(Base):
     __tablename__ = "files"
 
-    id: Mapped[str] = mapped_column(VARCHAR(64), primary_key=True)
+    id: Mapped[str] = mapped_column(UUID, primary_key=True)
     filename: Mapped[str] = mapped_column(VARCHAR(512), nullable=False)
     extension: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(TIMESTAMP, nullable=False,
@@ -63,7 +63,7 @@ class File(Base):
 class Message(Base):
     __tablename__ = "messages"
 
-    id: Mapped[str] = mapped_column(VARCHAR(64), primary_key=True)
+    id: Mapped[str] = mapped_column(UUID, primary_key=True)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="SET NULL", onupdate="CASCADE"),
                                          nullable=True)
     chat_id: Mapped[str] = mapped_column(ForeignKey("chats.id", ondelete="CASCADE", onupdate="CASCADE"),

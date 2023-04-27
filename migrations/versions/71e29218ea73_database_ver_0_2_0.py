@@ -1,8 +1,8 @@
-"""Initial database structure
+"""Database ver 0.2.0
 
-Revision ID: 4773b983fd97
+Revision ID: 71e29218ea73
 Revises: 
-Create Date: 2023-04-27 06:00:51.645289
+Create Date: 2023-04-27 10:24:38.237079
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '4773b983fd97'
+revision = '71e29218ea73'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,10 +25,11 @@ def upgrade() -> None:
     sa.UniqueConstraint('name')
     )
     op.create_table('files',
-    sa.Column('id', sa.VARCHAR(length=64), nullable=False),
+    sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('filename', sa.VARCHAR(length=512), nullable=False),
     sa.Column('extension', sa.VARCHAR(length=16), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+    sa.Column('file', postgresql.BYTEA(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('permissions',
@@ -38,7 +39,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('name')
     )
     op.create_table('users',
-    sa.Column('id', sa.VARCHAR(length=64), nullable=False),
+    sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('username', sa.VARCHAR(length=32), nullable=False),
     sa.Column('password', sa.VARCHAR(length=128), nullable=False),
     sa.Column('is_online', sa.BOOLEAN(), server_default=sa.text('False'), nullable=False),
@@ -46,32 +47,32 @@ def upgrade() -> None:
     sa.UniqueConstraint('username')
     )
     op.create_table('chats',
-    sa.Column('id', sa.VARCHAR(length=64), nullable=False),
+    sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('name', sa.VARCHAR(length=128), nullable=False),
     sa.Column('type_id', sa.INTEGER(), nullable=False),
     sa.ForeignKeyConstraint(['type_id'], ['chat_types.id'], onupdate='CASCADE', ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user_files',
-    sa.Column('user_id', sa.VARCHAR(length=64), nullable=False),
-    sa.Column('file_id', sa.VARCHAR(length=64), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('file_id', sa.UUID(), nullable=False),
     sa.Column('current_avatar', sa.BOOLEAN(), nullable=True),
     sa.ForeignKeyConstraint(['file_id'], ['files.id'], onupdate='CASCADE', ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], onupdate='CASCADE', ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('user_id', 'file_id')
     )
     op.create_table('chat_members',
-    sa.Column('user_id', sa.VARCHAR(length=64), nullable=False),
-    sa.Column('chat_id', sa.VARCHAR(length=64), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('chat_id', sa.UUID(), nullable=False),
     sa.Column('permissions', postgresql.ARRAY(sa.INTEGER()), nullable=False),
     sa.ForeignKeyConstraint(['chat_id'], ['chats.id'], onupdate='CASCADE', ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], onupdate='CASCADE', ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('user_id', 'chat_id')
     )
     op.create_table('messages',
-    sa.Column('id', sa.VARCHAR(length=64), nullable=False),
-    sa.Column('user_id', sa.VARCHAR(length=64), nullable=True),
-    sa.Column('chat_id', sa.VARCHAR(length=64), nullable=False),
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=True),
+    sa.Column('chat_id', sa.UUID(), nullable=False),
     sa.Column('message_params', postgresql.JSON(astext_type=sa.Text()), nullable=False),
     sa.ForeignKeyConstraint(['chat_id'], ['chats.id'], onupdate='CASCADE', ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], onupdate='CASCADE', ondelete='SET NULL'),
