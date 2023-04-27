@@ -1,8 +1,17 @@
 import datetime
 from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR, BOOLEAN, DATE, TIMESTAMP, JSON, ARRAY, BYTEA
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import text, ForeignKey
-from app import engine
+from config import DATABASE_URI
+
+engine = create_async_engine(DATABASE_URI)
+async_session = async_sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
+
+
+async def session() -> AsyncSession:
+    async with async_session() as session:
+        yield session
 
 
 class Base(DeclarativeBase):

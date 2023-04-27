@@ -1,10 +1,11 @@
 from typing import Annotated
-from sqlalchemy.ext.asyncio import create_async_engine
 from fastapi import FastAPI, Form
-
-engine = create_async_engine("postgresql+asyncpg://postgres:postgres@localhost:5432/test")
+from models import async_session
 
 app = FastAPI()
+
+from auth import router as auth_router
+app.include_router(auth_router)
 
 
 @app.get('/')
